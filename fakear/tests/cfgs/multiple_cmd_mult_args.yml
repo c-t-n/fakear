@@ -1,0 +1,26 @@
+echo:
+  - args:
+      - Hello
+    return_code: 0
+    output: Hello
+  - args:
+      - World
+    return_code: 0
+    output: World
+
+ls:
+  - args:
+      - -la
+      - jiquiel
+    return_code: -1
+    output: Error
+  - args:
+      - -l
+    return_code: 0
+    output: Hello
+  - args:
+      - omelette
+      - du
+      - fromage
+    return_code: 4
+    output: Dexter ??

@@ -1,0 +1,9 @@
+echo:
+  - args:
+      - Hello
+    return_code: 0
+    output: World
+  - args:
+      - World
+    return_code: 0
+    output: Hello

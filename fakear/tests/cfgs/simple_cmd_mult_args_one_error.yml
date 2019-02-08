@@ -1,0 +1,11 @@
+echo:
+  - args:
+      - Hello
+    return_code: 0
+    output: Hello
+    ewkqen: jfepjfp
+  - command: echo
+    args:
+      - World
+    return_code: 0
+    output: World
