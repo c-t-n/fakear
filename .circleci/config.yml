@@ -49,6 +49,7 @@ jobs:
           command: |
             . venv/bin/activate
             pip install pytest
+            python setup.py install
             pytest fakear/tests
 
       - store_artifacts:

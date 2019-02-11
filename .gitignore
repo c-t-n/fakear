@@ -2,6 +2,8 @@ __pycache__
 .vscode
 bin
 lib
+build
+dist
 include
 
 .pytest_cache
