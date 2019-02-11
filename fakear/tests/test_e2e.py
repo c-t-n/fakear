@@ -18,6 +18,7 @@ class TestEndToEndFakear(object):
         
         
         p = run(["ls", "omelette", "du", "fromage"], capture_output=True)
+        assert p.stderr.decode() == ""
         assert p.stdout.decode() == "Dexter ??\n"
         assert p.returncode == 4
 
