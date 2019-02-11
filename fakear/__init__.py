@@ -1,5 +1,6 @@
 import os
 import yaml
+from shutil import rmtree
 
 from subprocess import run
 from voluptuous import Schema, Required, Optional, Exclusive, Match, ALLOW_EXTRA
@@ -25,7 +26,7 @@ class Fakear(object):
         self.__fakedcmds = {}
         self.__enabled = False
         self.__faked_path="/tmp/fakear/binaries"
-        self.__shell = "/usr/bin/bash"
+        self.__shell = self.__search_for_interpreter()
 
         if all([not cfg, not rawdata]): return
         if all([cfg, rawdata]):
@@ -48,6 +49,14 @@ class Fakear(object):
     def faked_path(self):
         return self.__faked_path
 
+    @property
+    def shell(self):
+        return self.__shell
+
+
+    def __search_for_interpreter(self):
+        p = run(["which", "sh"], capture_output=True)
+        return p.stdout.decode().replace("\n", "")
 
     def __write_binaries(self):
         for command, subcmds in self.__fakedcmds.items():
@@ -122,7 +131,7 @@ class Fakear(object):
         self.__enabled = True
 
     def disable(self):
-        if not os.path.exists(self.__faked_path):
-            os.rmdir(self.__faked_path)
+        if os.path.exists(self.__faked_path):
+            rmtree(self.__faked_path)
         self.__disable_path()
         self.__enabled = False        

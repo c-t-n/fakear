@@ -1,5 +1,7 @@
+from setuptools import find_packages
 import setuptools
 import fakear
+
 
 with open("README.md", "r") as readme:
     long_description = readme.read()
@@ -13,12 +15,11 @@ setuptools.setup(
     long_description = long_description,
     long_description_content_type = "text/markdown",
     url = "",
-    packages = setuptools.find_packages(),
-    entrypoints = {
-        'console_scripts': [
-            'fakear = fakear.__main__.py:main'
-        ]
-    },
+    packages = find_packages(),
+    install_requires = [
+        "pyyaml",
+        "voluptuous"
+    ],
     classifiers = [
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT Licence",
