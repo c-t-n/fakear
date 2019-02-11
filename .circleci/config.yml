@@ -47,6 +47,8 @@ jobs:
       - run:
           name: run tests
           command: |
+            sudo rm /bin/sh
+            sudo ln -s /bin/bash /bin/sh
             . venv/bin/activate
             pip install pytest
             python setup.py install
