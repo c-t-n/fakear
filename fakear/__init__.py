@@ -55,7 +55,7 @@ class Fakear(object):
 
 
     def __search_for_interpreter(self):
-        p = run(["which", "sh"], capture_output=True)
+        p = run(["which", "bash"], capture_output=True)
         return p.stdout.decode().replace("\n", "")
 
     def __write_binaries(self):
