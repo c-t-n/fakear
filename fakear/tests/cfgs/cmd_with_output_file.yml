@@ -1,0 +1,5 @@
+cc:
+  - args:
+    - bb
+    return_code: 0
+    output_file: files/bb-output

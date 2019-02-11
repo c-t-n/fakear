@@ -1,6 +1,6 @@
 import os
 import yaml
-from shutil import rmtree
+from shutil import rmtree, copyfile
 
 from subprocess import run
 from voluptuous import Schema, Required, Optional, Exclusive, Match, ALLOW_EXTRA
@@ -25,20 +25,18 @@ class Fakear(object):
     def __init__(self, cfg=None, rawdata=None):
         self.__fakedcmds = {}
         self.__enabled = False
-        self.__faked_path="/tmp/fakear/binaries"
+        self.__faked_path = "/tmp/fakear/binaries"
+        self.__cfg_paths = []
         self.__shell = self.__search_for_interpreter()
 
         if all([not cfg, not rawdata]): return
         if all([cfg, rawdata]):
             raise FakearMultipleSourceException()
         if cfg:
-            with open(cfg) as d:
-                rawdata = d.read()
-        
-        data = self.validate_file(yaml.load(rawdata))
-        for cmd, args in data.items():
-            self.__fakedcmds[cmd] = self.validate_args(args)
+            rawdata = self.__add_configuration(cfg)
 
+        data = self.validate_file(yaml.load(rawdata))
+        self.__load_fake_cmds(data)
 
     @property
     def commands(self):
@@ -57,6 +55,30 @@ class Fakear(object):
     def __search_for_interpreter(self):
         p = run(["which", "bash"], capture_output=True)
         return p.stdout.decode().replace("\n", "")
+
+    
+    def __load_fake_cmds(self, data):
+        for cmd, args in data.items():
+            self.__fakedcmds[cmd] = self.validate_args(args)
+
+
+    def __add_configuration(self, filepath):
+        if "/" in filepath:
+            path = "/".join(filepath.split("/")[:-1])
+            self.__cfg_paths.append(path)
+        with open(filepath) as d:
+            rawdata = d.read()
+            return rawdata
+
+
+    def __search_for_file(self, filepath):
+        for path in self.__cfg_paths:
+            tmp_path = os.path.join(path, filepath)
+            if os.path.exists(tmp_path):
+                return tmp_path
+
+        return None
+
 
     def __write_binaries(self):
         for command, subcmds in self.__fakedcmds.items():
@@ -77,23 +99,26 @@ class Fakear(object):
                         'arg_line': " && ".join([ f'"${a[0]}" = "{a[1]}"' for a in zipped_subs ])
                     }
 
-                    if not binary:
-                        if sub_args['arg_line']:
+                    if sub_args['arg_line']:
+                        if not binary:
                             binary.append(templates.sh_if.format(**sub_args))
-                        if "output_file" in sub.keys():
-                            binary.append(templates.sh_output_file.format(**sub))
                         else:
-                            binary.append(templates.sh_output.format(**sub))
-                    else:
-                        if sub_args['arg_line']:
                             binary.append(templates.sh_elif.format(**sub_args))
-                        else:
-                            binary.append(templates.sh_else)
+                    else:
+                        binary.append(templates.sh_else)
 
-                        if "output_file" in sub.keys():
+                    if "output_file" in sub.keys():
+                        output_path = os.path.join( self.__faked_path, f"{command}_files")
+                        if not os.path.exists( output_path ):
+                            os.makedirs( output_path )
+                        if sub.get('output_file', None):
+                            src_filepath = self.__search_for_file(sub['output_file'])
+                            src_filename = src_filepath.split("/")[-1]
+                            sub['output_file'] = os.path.join( output_path, src_filename )
+                            copyfile(src_filepath, sub['output_file'])
                             binary.append(templates.sh_output_file.format(**sub))
-                        else:
-                            binary.append(templates.sh_output.format(**sub))                        
+                    else:
+                        binary.append(templates.sh_output.format(**sub))                        
                         
             if len(binary) > 1:
                 binary.append(templates.sh_fi)
