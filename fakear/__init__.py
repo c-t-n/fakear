@@ -74,7 +74,7 @@ class Fakear(object):
 
                     sub_args = {
                         'length': len(zipped_subs),
-                        'arg_line': " && ".join([ f"${a[0]} = '{a[1]}'" for a in zipped_subs ])
+                        'arg_line': " && ".join([ f"'${a[0]}' = '{a[1]}'" for a in zipped_subs ])
                     }
 
                     if not binary:

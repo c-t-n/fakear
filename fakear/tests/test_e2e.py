@@ -9,7 +9,7 @@ from voluptuous import Error as VoluptuousError
 
 class TestEndToEndFakear(object):
     def test_enable_basic_cmd(self):
-        fe = Fakear(cfg="fakear/tests/cfgs/multiple_cmd_mult_args.yml")
+        ̀Œ
         fe.enable()
         assert fe.faked_path in os.environ["PATH"]
         assert os.path.exists(fe.faked_path)
