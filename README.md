@@ -1,5 +1,8 @@
 # Fakear
-### A tool that mocks shell commands and binaries used for Python program testing
+
+A tool that mocks shell commands and binaries used for Python program testing
+
+[![CircleCI](https://circleci.com/gh/c-t-n/fakear/tree/master.svg?style=svg)](https://circleci.com/gh/c-t-n/fakear/tree/master)
 
 # Purpose
 
