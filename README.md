@@ -7,8 +7,6 @@ A tool that mocks shell commands and binaries used for Python program testing
 # Purpose
 
 
-
-
 # Quick Start
 
 This is a mock of the `ls` command.

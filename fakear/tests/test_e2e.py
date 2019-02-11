@@ -34,3 +34,17 @@ class TestEndToEndFakear(object):
         fe.disable()
         assert fe.faked_path not in os.environ["PATH"]
         assert not os.path.exists(fe.faked_path)
+
+
+    def test_enable_cmd_with_file(self):
+        fe = Fakear(cfg="fakear/tests/cfgs/cmd_with_output_file.yml")
+        fe.enable()
+        assert fe.faked_path in os.environ["PATH"]
+        assert os.path.exists(fe.faked_path)
+        assert os.path.exists(fe.faked_path + "/cc")
+        assert os.path.exists( os.path.join(fe.faked_path, "cc_files") )
+
+        p = run(["cc", "bb"], capture_output=True)
+        assert p.stderr.decode() == ""
+        assert p.stdout.decode() == "jtm tmtc\n"
+        assert p.returncode == 0
