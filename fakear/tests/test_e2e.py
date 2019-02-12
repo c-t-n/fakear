@@ -48,3 +48,15 @@ class TestEndToEndFakear(object):
         assert p.stderr.decode() == ""
         assert p.stdout.decode() == "jtm tmtc\n"
         assert p.returncode == 0
+
+    def test_disable_cmd_with_file(self):
+        fe = Fakear(cfg="fakear/tests/cfgs/cmd_with_output_file.yml")
+        fe.enable()
+        p = run(["cc", "bb"], capture_output=True)
+        assert p.stderr.decode() == ""
+        assert p.stdout.decode() == "jtm tmtc\n"
+        assert p.returncode == 0
+
+        fe.disable()
+        assert fe.faked_path not in os.environ["PATH"]
+        assert not os.path.exists(fe.faked_path)
