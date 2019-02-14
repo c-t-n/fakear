@@ -8,7 +8,33 @@ from voluptuous import Error as VoluptuousError
 
 
 class TestEndToEndFakear(object):
-    def test_enable_basic_cmd(self):
+    def test_enable_basic_cmd_default_only(self):
+        fe = Fakear(cfg="fakear/tests/cfgs/simple_cmd.yml")
+        fe.enable()
+        assert fe.faked_path in os.environ["PATH"]
+        assert os.path.exists(fe.faked_path)
+        assert os.path.exists(fe.faked_path + "/echo")
+        
+        
+        p = run(["echo"], capture_output=True)
+        assert p.stderr.decode() == ""
+        assert p.stdout.decode() == "I am a fake binary !\n"
+        assert p.returncode == 0
+
+    def test_enable_basic_cmd_default_overwritten(self):
+        fe = Fakear(cfg="fakear/tests/cfgs/simple_cmd_default.yml")
+        fe.enable()
+        assert fe.faked_path in os.environ["PATH"]
+        assert os.path.exists(fe.faked_path)
+        assert os.path.exists(fe.faked_path + "/echo")
+        
+        
+        p = run(["echo"], capture_output=True)
+        assert p.stderr.decode() == ""
+        assert p.stdout.decode() == "Hello World\n"
+        assert p.returncode == 0
+
+    def test_enable_basic_cmd_mult_args(self):
         fe = Fakear(cfg="fakear/tests/cfgs/multiple_cmd_mult_args.yml")
         fe.enable()
         assert fe.faked_path in os.environ["PATH"]

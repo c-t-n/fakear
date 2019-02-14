@@ -22,3 +22,12 @@ class TestBasicFakear(object):
         h = Fakear(cfg="fakear/tests/cfgs/simple_cmd_mult_args.yml")
         assert isinstance(h, Fakear)
         assert h.commands.get('echo', False)
+
+
+    def test_path_immutable_when_activated(self):
+        h = Fakear()
+        assert isinstance(h, Fakear)
+
+        h.enable()
+        h.set_faked_path("/etc/default")
+        assert h.faked_path == "/tmp/fakear/binaries"

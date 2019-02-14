@@ -1,0 +1,11 @@
+smartctl:
+  - args:
+    - --scan
+    return_code: 0
+    output_file: smartctl/scan.txt
+
+  - args:
+    - -a
+    - /dev/sda
+    return_code: 4
+    output_file: smartctl/dev_sda_infos.txt
