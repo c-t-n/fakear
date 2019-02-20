@@ -11,7 +11,7 @@ echo:
 ls:
   - args:
       - -la
-      - jiquiel
+      - qweqf
     return_code: -1
     output: Error
   - args:

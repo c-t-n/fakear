@@ -1,4 +1,11 @@
-sh_header = """#!{shell_path}
+"""
+Template variables for shell script generation
+
+Do not modify unless you know what you're doing
+"""
+
+
+SH_HEADER = """#!{shell_path}
 
 # This program is automatically generated with the python Fakear library
 # This program should temporary simulate the behaviour of the real program
@@ -8,18 +15,18 @@ sh_header = """#!{shell_path}
 
 """
 
-sh_if = 'if [[ "$#" -eq {length} && {arg_line} ]]; then'
-sh_elif = 'elif [[ "$#" -eq {length} && {arg_line} ]]; then'
-sh_else = 'else'
-sh_fi  = 'fi'
+SH_IF = 'if [[ "$#" -eq {length} && {arg_line} ]]; then'
+SH_ELIF = 'elif [[ "$#" -eq {length} && {arg_line} ]]; then'
+SH_ELSE = 'else'
+SH_FI = 'fi'
 
-sh_output = """
+SH_OUTPUT = """
     echo '{output}'
     exit {return_code}
 """
-sh_output_file = """
+SH_OUTPUT_FILE = """
     cat '{output_file}'
     exit {return_code}
 """
 
-sh_default = 'echo "I am a fake binary !"'
+SH_DEFAULT = 'echo "I am a fake binary !"'

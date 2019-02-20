@@ -14,20 +14,18 @@ class TestBasicFakear(object):
 
 
     def test_engine_simple_cmd(self):
-        h = Fakear(cfg="fakear/tests/cfgs/simple_cmd.yml")
+        h = Fakear(cfg="tests/cfgs/simple_cmd.yml")
         assert isinstance(h, Fakear)
         assert "echo" in h.commands.keys()
 
     def test_engine_multiple_args(self):
-        h = Fakear(cfg="fakear/tests/cfgs/simple_cmd_mult_args.yml")
+        h = Fakear(cfg="tests/cfgs/simple_cmd_mult_args.yml")
         assert isinstance(h, Fakear)
         assert h.commands.get('echo', False)
 
 
     def test_path_immutable_when_activated(self):
-        h = Fakear()
-        assert isinstance(h, Fakear)
-
-        h.enable()
-        h.set_faked_path("/etc/default")
-        assert h.faked_path == "/tmp/fakear/binaries"
+        with Fakear() as fe:
+            old_path = fe.faked_path
+            fe.set_faked_path("/etc/default")
+            assert old_path == fe.faked_path

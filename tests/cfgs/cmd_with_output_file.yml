@@ -1,5 +1,5 @@
 cc:
   - args:
-    - bb
+    - dd
     return_code: 0
     output_file: files/bb-output

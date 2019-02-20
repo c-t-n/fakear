@@ -52,7 +52,7 @@ jobs:
             . venv/bin/activate
             pip install pytest
             python setup.py install
-            pytest fakear/tests
+            pytest
 
       - store_artifacts:
           path: test-reports
