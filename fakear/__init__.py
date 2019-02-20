@@ -1,35 +1,48 @@
-import os
-import yaml
+# -*- coding: utf-8 -*-
+"""Fakear - Shell command mocker for unit testing purposes
+(c) Franck Lourme - Scaleway
 
+TODO:
+    - Do some Documentation
+    - Install tox
+"""
+
+import os
 from shutil import rmtree, copyfile
-from subprocess import run
-from voluptuous import Schema, Required, Optional, Exclusive, Match, Any, ALLOW_EXTRA
+from subprocess import check_output
+
+import yaml
+from voluptuous import Schema, Required, Optional, Exclusive, Match, Any
+from voluptuous import ALLOW_EXTRA
 from fakear import templates
+
 
 class FakearMultipleSourceException(Exception):
     pass
 
-class Fakear(object):
+
+class Fakear():
 
     validate_file = Schema({
         Match(r'^[A-Za-z0-9]+$'): Any(list, None)
     }, extra=ALLOW_EXTRA)
 
     validate_args = Schema([{
-            Optional('args'): list,
-            Required('return_code'): int,
-            Exclusive('output', 'output'): str,
-            Exclusive('output_file', 'output'): str
-        }] )
+        Optional('args'): list,
+        Required('return_code'): int,
+        Exclusive('output', 'output'): str,
+        Exclusive('output_file', 'output'): str
+    }])
 
-    def __init__(self, cfg=None, rawdata=None):
+    def __init__(self, cfg=None, rawdata=None, path="/tmp/fakear/bin"):
         self.__fakedcmds = {}
         self.__enabled = False
-        self.__faked_path = "/tmp/fakear/binaries"
+        self.__faked_path = path
         self.__cfg_paths = []
-        self.__shell = self.__search_for_interpreter()
+        self.__search_for_interpreter()
 
-        if all([not cfg, not rawdata]): return
+        if all([not cfg, not rawdata]):
+            return
         if all([cfg, rawdata]):
             raise FakearMultipleSourceException()
         if cfg:
@@ -38,7 +51,7 @@ class Fakear(object):
         data = self.validate_file(yaml.load(rawdata))
         self.__load_fake_cmds(data)
 
-    ## Properties
+    # Properties
 
     @property
     def commands(self):
@@ -65,28 +78,27 @@ class Fakear(object):
         """
         return self.__shell
 
-
-    ## Private method
+    # Private method
 
     def __search_for_interpreter(self):
-        p = run(["which", "bash"], capture_output=True)
-        return p.stdout.decode().replace("\n", "")
+        process = check_output(["which", "bash"])
+        self.__shell = process.decode().replace("\n", "")
+        return self.__shell
 
-    
     def __load_fake_cmds(self, data):
         for cmd, args in data.items():
             if args:
-                self.__fakedcmds[cmd] = self.validate_args(args) 
+                self.__fakedcmds[cmd] = self.validate_args(args)
             else:
                 self.__fakedcmds[cmd] = []
+
     def __add_configuration(self, filepath):
         if "/" in filepath:
             path = "/".join(filepath.split("/")[:-1])
             self.__cfg_paths.append(path)
-        with open(filepath) as d:
-            rawdata = d.read()
+        with open(filepath) as cfg:
+            rawdata = cfg.read()
             return rawdata
-
 
     def __search_for_file(self, filepath):
         for path in self.__cfg_paths:
@@ -96,79 +108,99 @@ class Fakear(object):
 
         return None
 
-
     def __write_binaries(self):
         for command, subcmds in self.__fakedcmds.items():
-            subs = sorted(subcmds, key=lambda a: len(a.get('args', [])), reverse=True)
-            filepath = os.path.join(self.faked_path, command)
-            binary = []
+            subs = sorted(subcmds,
+                          key=lambda a: len(a.get('args', [])),
+                          reverse=True)
+            prg = []
 
-            # Case for no subcommand
-            if not subs:
-                binary.append(templates.sh_default)
-            else:
-                for sub in subs:
-                    sub_extract = sub.get('args', [])
-                    zipped_subs = list(zip(range(1, len(sub_extract) + 1), sub_extract))
+            for sub in subs:
+                sub_extract = sub.get('args', [])
+                zipped_subs = list(
+                    zip(range(1, len(sub_extract) + 1), sub_extract)
+                )
 
-                    sub_args = {
-                        'length': len(zipped_subs),
-                        'arg_line': " && ".join([ f'"${a[0]}" = "{a[1]}"' for a in zipped_subs ])
-                    }
+                sub_args = {
+                    'length': len(zipped_subs),
+                    'arg_line': " && ".join(
+                        [f'"${a[0]}" = "{a[1]}"' for a in zipped_subs]
+                    )
+                }
 
-                    if sub_args['arg_line']:
-                        if not binary:
-                            binary.append(templates.sh_if.format(**sub_args))
-                        else:
-                            binary.append(templates.sh_elif.format(**sub_args))
+                if sub_args['arg_line']:
+                    if not prg:
+                        prg.append(templates.SH_IF.format(**sub_args))
                     else:
-                        if len(binary):
-                            binary.append(templates.sh_else)
+                        prg.append(templates.SH_ELIF.format(**sub_args))
+                else:
+                    if prg:
+                        prg.append(templates.SH_ELSE)
 
-                    if "output_file" in sub.keys():
-                        output_path = os.path.join( self.__faked_path, f"{command}_files")
-                        if not os.path.exists( output_path ):
-                            os.makedirs( output_path )
-                        if sub.get('output_file', None):
-                            src_filepath = self.__search_for_file(sub['output_file'])
-                            src_filename = src_filepath.split("/")[-1]
-                            sub['output_file'] = os.path.join( output_path, src_filename )
-                            copyfile(src_filepath, sub['output_file'])
-                            binary.append(templates.sh_output_file.format(**sub))
-                    else:
-                        binary.append(templates.sh_output.format(**sub))                        
-                        
-            if len(binary) > 1:
-                binary.append(templates.sh_fi)
+                if "output_file" in sub.keys():
+                    output_path = os.path.join(self.__faked_path,
+                                               f"{command}_files")
+                    if not os.path.exists(output_path):
+                        os.makedirs(output_path)
+                    out_file = sub.get('output_file', None)
+                    if out_file:
+                        src_filepath = self.__search_for_file(out_file)
+                        src_filename = src_filepath.split("/")[-1]
+                        sub['output_file'] = os.path.join(output_path,
+                                                          src_filename)
+                        copyfile(src_filepath, sub['output_file'])
+                        prg.append(templates.SH_OUTPUT_FILE.format(**sub))
+                else:
+                    prg.append(templates.SH_OUTPUT.format(**sub))
 
-            with open(filepath, 'w+') as f:
-                f.writelines(templates.sh_header.format(shell_path=self.__shell))
-                f.writelines(binary)
+            if len(prg) > 1:
+                prg.append(templates.SH_FI)
+            if not prg:
+                prg.append(templates.SH_DEFAULT)
 
-            os.chmod(filepath, 0o777)
+            self.__write_file(command, prg)
 
+    def __write_file(self, command, prg):
+
+        filepath = os.path.join(self.faked_path, command)
+
+        with open(filepath, 'w+') as prgfile:
+            header = templates.SH_HEADER.format(shell_path=self.__shell)
+            prgfile.writelines(header)
+            prgfile.writelines(prg)
+
+        os.chmod(filepath, 0o777)
 
     def __enable_path(self):
         if self.__faked_path not in os.environ["PATH"]:
             os.environ["PATH"] = f'{self.__faked_path}:{os.environ["PATH"]}'
-            
 
     def __disable_path(self):
         if self.__faked_path in os.environ["PATH"]:
             path = ":".join([
                 p for p in os.environ["PATH"].split(":")
-                    if self.__faked_path not in p
+                if self.__faked_path not in p
             ])
             os.environ['PATH'] = path
 
+    # Context Manager
 
+    def __enter__(self):
+        self.enable()
+        return self
 
-    ## API
+    def __exit__(self, exception_type, exception_val, trace):
+        self.disable()
+
+    # API
 
     def set_faked_path(self, path):
+        """
+        Set a new path where fake programs would be generated and invoked
+        Path is not modifiable when this instance is enabled or used inside a context
+        """
         if not self.__enabled:
             self.__faked_path = path
-            
 
     def enable(self):
         if not os.path.exists(self.__faked_path):
@@ -181,4 +213,4 @@ class Fakear(object):
         if os.path.exists(self.__faked_path):
             rmtree(self.__faked_path)
         self.__disable_path()
-        self.__enabled = False        
+        self.__enabled = False
