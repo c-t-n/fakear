@@ -11,31 +11,28 @@ jobs:
         - image: python:2
       steps:
         - checkout
-        - run: pip install tox
-        - run: pip install -r requirements.txt
+        - run: pip install pytest && pip install -r requirements.txt && python setup.py install
         - run: pytest
   py34:
       docker:
         - image: python:3.4
       steps:
         - checkout
-        - run: pip install tox
-        - run: pip install -r requirements.txt
+        - run: pip install pytest && pip install -r requirements.txt && python setup.py install
         - run: pytest
   py36:
       docker:
         - image: python:3.6
       steps:
         - checkout
-        - run: pip install tox
-        - run: pip install -r requirements.txt
+        - run: pip install pytest && pip install -r requirements.txt && python setup.py install
         - run: pytest
   py37:
       docker:
         - image: python:3.7
       steps:
         - checkout
-        - run: pip install -r requirements.txt && python setup.py install
+        - run: pip install pytest && pip install -r requirements.txt && python setup.py install
         - run: pytest
 workflows:
   version: 2
