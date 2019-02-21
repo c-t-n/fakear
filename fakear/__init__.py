@@ -10,10 +10,10 @@ output.
 TODO:
     [x] Create some Documentation
     [x] Install tox and ensure it works on previous Python
-        releases (2.7 - 3.6)
+        releases (2.7 - 3.7)
         - [x] 2.7
-        - [ ] 3.4
-        - [ ] 3.6
+        - [x] 3.5
+        - [x] 3.6
         - [x] 3.7
 """
 
