@@ -8,7 +8,7 @@ with open("README.md", "r") as readme:
 
 setuptools.setup(
     name = "fakear",
-    version = "0.1",
+    version = "0.1.1",
     author = "Franck LOURME",
     author_email = "flourme@scaleway.com",
     description = "A Shell-command faker for Python Unit Testing",
@@ -22,6 +22,7 @@ setuptools.setup(
     ],
     classifiers = [
         "Topic :: Software Development :: Testing",
+        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: MacOS :: MacOS X",
