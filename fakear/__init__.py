@@ -1,14 +1,20 @@
 # -*- coding: utf-8 -*-
 """Shell command mocker for unit testing purposes
-A module that creates fake binaries from valid configuration 
-( a yaml file or a dict ) and launch them in the context of 
+A module that creates fake binaries from valid configuration
+( a yaml file or a dict ) and launch them in the context of
 your Python script, without efforts.
 
-Built for testing Python scripts that rely on other binaries output.
+Built for testing Python scripts that rely on other binaries
+output.
 
 TODO:
-    - Create some Documentation
-    - Install tox and ensure functionnalities on previous Python releases
+    [x] Create some Documentation
+    [x] Install tox and ensure it works on previous Python
+        releases (2.7 - 3.6)
+        - [x] 2.7
+        - [ ] 3.4
+        - [ ] 3.6
+        - [x] 3.7
 """
 
 import os
@@ -36,7 +42,7 @@ class FakearMultipleSourceException(Exception):
     pass
 
 
-class Fakear():
+class Fakear:
     """
     The main class, the one that creates fake programs from yaml configuration
     file or a dict.
@@ -60,9 +66,8 @@ class Fakear():
             - return_code: -1
               output: This is a fake program, please give the correct arguments
 
-    You can declare multiple commands with multiple behaviour in each of them at once
-    but you need to match the correct signature
-
+    You can declare multiple commands with multiple behaviour in each of them
+    at once but you need to match the correct signature
     """
     __validate_file = Schema({
         Match(r'^[A-Za-z0-9]+$'): Any(list, None)
@@ -164,7 +169,9 @@ class Fakear():
                 sub_args = {
                     'length': len(zipped_subs),
                     'arg_line': " && ".join(
-                        [f'"${a[0]}" = "{a[1]}"' for a in zipped_subs]
+                        ['"${arg}" = "{value}"'.format(arg=arg[0],
+                                                       value=arg[1])
+                         for arg in zipped_subs]
                     )
                 }
 
@@ -179,7 +186,7 @@ class Fakear():
 
                 if "output_file" in sub.keys():
                     output_path = os.path.join(self.__faked_path,
-                                               f"{command}_files")
+                                               "{}_files".format(command))
                     if not os.path.exists(output_path):
                         os.makedirs(output_path)
                     out_file = sub.get('output_file', None)
@@ -213,7 +220,8 @@ class Fakear():
 
     def __enable_path(self):
         if self.__faked_path not in os.environ["PATH"]:
-            os.environ["PATH"] = f'{self.__faked_path}:{os.environ["PATH"]}'
+            os.environ["PATH"] = '{}:{}'.format(self.__faked_path,
+                                                os.environ["PATH"])
 
     def __disable_path(self):
         if self.__faked_path in os.environ["PATH"]:
@@ -236,8 +244,10 @@ class Fakear():
 
     def set_path(self, path):
         """
-        Set a new path where fake programs would be generated and invoked
-        Path is not modifiable when this instance is enabled or used inside a context
+        Set a new path where fake programs would be generated and
+        invoked
+        Path is not modifiable when this instance is enabled or
+        used inside a context
         """
         if not self.__enabled:
             self.__faked_path = path
@@ -246,9 +256,10 @@ class Fakear():
         """
         Enable this Fakear instance:
          - Create the path for fake programs
-         - Write programs according to the configuration data you provide
+         - Write programs according to the configuration data you
+           provide
          - Adds fakear path to env PATH variable
-        
+
         When an instance is enabled, you can't modify data inside
         """
         if not os.path.exists(self.__faked_path):

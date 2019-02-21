@@ -1,8 +1,14 @@
 import pytest
 import yaml
 import os
+import sys
 
-from subprocess import run
+if sys.version_info[0] < 3:
+    from .run_py27 import run
+else:
+    from .run_py3 import run
+
+from subprocess import PIPE
 from fakear import Fakear
 from voluptuous import Error as VoluptuousError
 
@@ -14,9 +20,9 @@ class TestEndToEndFakear(object):
         assert fe.faked_path in os.environ["PATH"]
         assert os.path.exists(fe.faked_path)
         assert os.path.exists(fe.faked_path + "/echo")
-        
-        
-        p = run(["echo"], capture_output=True)
+       
+       
+        p = run(["echo"], stdout=PIPE, stderr=PIPE)
         assert p.stderr.decode() == ""
         assert p.stdout.decode() == "I am a fake binary !\n"
         assert p.returncode == 0
@@ -27,9 +33,9 @@ class TestEndToEndFakear(object):
         assert fe.faked_path in os.environ["PATH"]
         assert os.path.exists(fe.faked_path)
         assert os.path.exists(fe.faked_path + "/echo")
-        
-        
-        p = run(["echo"], capture_output=True)
+       
+       
+        p = run(["echo"], stdout=PIPE, stderr=PIPE)
         assert p.stderr.decode() == ""
         assert p.stdout.decode() == "Hello World\n"
         assert p.returncode == 0
@@ -41,14 +47,14 @@ class TestEndToEndFakear(object):
         assert os.path.exists(fe.faked_path)
         assert os.path.exists(fe.faked_path + "/echo")
         assert os.path.exists(fe.faked_path + "/ls")
-        
-        
-        p = run(["ls", "omelette", "du", "fromage"], capture_output=True)
+       
+       
+        p = run(["ls", "omelette", "du", "fromage"], stdout=PIPE, stderr=PIPE)
         assert p.stderr.decode() == ""
         assert p.stdout.decode() == "Dexter ??\n"
         assert p.returncode == 4
 
-    
+   
     def test_disable_basic_cmd(self):
         fe = Fakear(cfg="tests/cfgs/multiple_cmd_mult_args.yml")
         fe.enable()
@@ -70,7 +76,7 @@ class TestEndToEndFakear(object):
         assert os.path.exists(fe.faked_path + "/cc")
         assert os.path.exists( os.path.join(fe.faked_path, "cc_files") )
 
-        p = run(["cc", "dd"], capture_output=True)
+        p = run(["cc", "dd"], stdout=PIPE, stderr=PIPE)
         assert p.stderr.decode() == ""
         assert p.stdout.decode() == "ee ff\n"
         assert p.returncode == 0
@@ -78,7 +84,7 @@ class TestEndToEndFakear(object):
     def test_disable_cmd_with_file(self):
         fe = Fakear(cfg="tests/cfgs/cmd_with_output_file.yml")
         fe.enable()
-        p = run(["cc", "dd"], capture_output=True)
+        p = run(["cc", "dd"], stdout=PIPE, stderr=PIPE)
         assert p.stderr.decode() == ""
         assert p.stdout.decode() == "ee ff\n"
         assert p.returncode == 0

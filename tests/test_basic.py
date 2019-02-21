@@ -2,7 +2,6 @@ import pytest
 import yaml
 import os
 
-from subprocess import run
 from fakear import Fakear
 from voluptuous import Error as VoluptuousError
 
