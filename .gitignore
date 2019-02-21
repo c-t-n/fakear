@@ -6,9 +6,13 @@ build
 dist
 include
 
+*.pyc
+
 .pytest_cache
 *.__pycache__
 *.egg-info
+
+.tox
 
 .Python
 pip-selfcheck.json

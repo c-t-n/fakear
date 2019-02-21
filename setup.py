@@ -21,8 +21,10 @@ setuptools.setup(
         "voluptuous"
     ],
     classifiers = [
+        "Topic :: Software Development :: Testing",
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT Licence",
-        "Operating System :: Linux"
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: POSIX :: Linux"
     ]
 )
