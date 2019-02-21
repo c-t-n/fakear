@@ -44,7 +44,7 @@ from subprocess import check_output
 
 def test_faked_ls(self):
     with Fakear(cfg="fake_ls.yaml"):
-      proc = check_output(["ls", "dexter"])
+        proc = check_output(["ls", "dexter"])
     
     assert proc.decode() == "Omelette du fromage\n"
 ```
@@ -149,4 +149,4 @@ You can use either cfg or raw but not both of them, as it should overlap scenari
 
 # Contribute
 
-Feel free to leave an issue on this repository, on mail me : flourme@scaleway.com
+Feel free to open an issue on this repository.
