@@ -27,5 +27,5 @@ class TestBasicFakear(object):
     def test_path_immutable_when_activated(self):
         with Fakear() as fe:
             old_path = fe.faked_path
-            fe.set_faked_path("/etc/default")
+            fe.set_path("/etc/default")
             assert old_path == fe.faked_path
