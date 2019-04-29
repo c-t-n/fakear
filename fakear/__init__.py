@@ -156,12 +156,12 @@ class Fakear:
             return rawdata
 
     def __search_for_file(self, filepath):
-        self.__log.debug(f"checking availability of file {filepath}")
+        self.__log.debug("checking availability of file {}".format(filepath))
         for path in self.__cfg_paths:
             tmp_path = os.path.join(path, filepath)
-            self.__log.debug(f"  checking {tmp_path}")
+            self.__log.debug("  checking {}".format(tmp_path))
             if os.path.exists(tmp_path):
-                self.__log.debug(f"  {tmp_path} found !")
+                self.__log.debug("  {} found !".format(tmp_path))
                 return tmp_path
         raise FakearFileNotFound()
 
