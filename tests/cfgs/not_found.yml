@@ -1,0 +1,5 @@
+deus_vult:
+  - args:
+      - hello
+    return_code: 2
+    output_file: deus_vult.j2

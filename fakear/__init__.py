@@ -18,6 +18,7 @@ TODO:
 """
 
 import os
+import logging
 from shutil import rmtree, copyfile
 from subprocess import check_output
 
@@ -33,6 +34,8 @@ from voluptuous import (
 )
 from fakear import templates
 
+logging.basicConfig(level=logging.DEBUG)
+
 
 class FakearMultipleSourceException(Exception):
     """
@@ -41,6 +44,11 @@ class FakearMultipleSourceException(Exception):
     """
     pass
 
+class FakearFileNotFound(Exception):
+    """
+    One file from a configuration is missing.
+    """
+    pass
 
 class Fakear:
     """
@@ -81,6 +89,7 @@ class Fakear:
     }])
 
     def __init__(self, cfg=None, rawdata=None, path="/tmp/fakear/bin"):
+        self.__log = logging.getLogger('fakear')
         self.__fakedcmds = {}
         self.__enabled = False
         self.__faked_path = path
@@ -147,11 +156,14 @@ class Fakear:
             return rawdata
 
     def __search_for_file(self, filepath):
+        self.__log.debug(f"checking availability of file {filepath}")
         for path in self.__cfg_paths:
             tmp_path = os.path.join(path, filepath)
+            self.__log.debug(f"  checking {tmp_path}")
             if os.path.exists(tmp_path):
+                self.__log.debug(f"  {tmp_path} found !")
                 return tmp_path
-        return None
+        raise FakearFileNotFound()
 
     def __write_binaries(self):
         for command, subcmds in self.__fakedcmds.items():

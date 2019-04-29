@@ -2,7 +2,7 @@ import pytest
 import yaml
 import os
 
-from fakear import Fakear
+from fakear import Fakear, FakearFileNotFound
 from voluptuous import Error as VoluptuousError
 
 
@@ -25,6 +25,11 @@ class TestErrorsFakear(object):
     def test_fuzzy_text(self):
         with pytest.raises(VoluptuousError):
             Fakear(cfg="tests/cfgs/fuzzy_text.yml")
+
+    def test_file_not_found(self):
+        with pytest.raises(FakearFileNotFound):
+            with Fakear(cfg="tests/cfgs/not_found.yml"):
+                pass
 
 
 
