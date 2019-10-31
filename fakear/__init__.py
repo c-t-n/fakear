@@ -181,7 +181,7 @@ class Fakear:
                 sub_args = {
                     'length': len(zipped_subs),
                     'arg_line': " && ".join(
-                        ['"${arg}" = "{value}"'.format(arg=arg[0],
+                        ['"${{{arg}}}" = "{value}"'.format(arg=arg[0],
                                                        value=arg[1])
                          for arg in zipped_subs]
                     )
