@@ -103,7 +103,7 @@ class Fakear:
         if cfg:
             rawdata = self.__add_configuration(cfg)
 
-        data = self.__validate_file(yaml.load(rawdata))
+        data = self.__validate_file(yaml.safe_load(rawdata))
         self.__load_fake_cmds(data)
 
     # Properties
@@ -181,7 +181,7 @@ class Fakear:
                 sub_args = {
                     'length': len(zipped_subs),
                     'arg_line': " && ".join(
-                        ['"${arg}" = "{value}"'.format(arg=arg[0],
+                        ['"${{{arg}}}" = "{value}"'.format(arg=arg[0],
                                                        value=arg[1])
                          for arg in zipped_subs]
                     )
